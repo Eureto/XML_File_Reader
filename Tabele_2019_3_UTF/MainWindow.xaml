@@ -1,0 +1,31 @@
+﻿<Window x:Class="Tabele_2019_3_UTF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Tabele_2019_3_UTF" xmlns:fa="http://schemas.fontawesome.io/icons/"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="900" Width="900"
+        WindowStartupLocation="CenterScreen">
+       
+    
+    <Viewbox>
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Height="885" Width="900">
+
+            <Label Content="Podaj ścieżkę dostępu:" HorizontalContentAlignment="Center" FontSize="20" HorizontalAlignment="Center" Margin="0,312,0,0" VerticalAlignment="Top" Height="40" Width="800"/>
+
+            <Button  Name="FilePathButton" Content="Kliknij Tutaj" HorizontalAlignment="Center" Margin="0,352,0,0" VerticalAlignment="Top" Height="42" Width="116" Click="FilePathButton_Click"/>
+
+            <TextBox BorderThickness="0" Name="filePathBox" HorizontalAlignment="Center" Margin="0,394,0,0" Text="" TextAlignment="Center" VerticalContentAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Width="800" Height="56"/>
+
+            <Button x:Name="NextWindow"  Content="Dalej" Margin="734,781,50,62" Click="Button_NextWindow" Visibility="Visible"/>
+
+            <Label Visibility="Hidden" Name="Napis1" Content="Podaj miejsce zapisania plików:" HorizontalContentAlignment="Center" FontSize="20" HorizontalAlignment="Center" Margin="0,461,0,0" VerticalAlignment="Top" Width="308"/>
+
+            <Button Visibility="Hidden" Name="Przycisk1" Content="Kliknij tutaj" HorizontalAlignment="Center" Margin="0,498,0,0" VerticalAlignment="Top" Height="43" Width="116" Click="Button_Click"/>
+
+            <TextBox Visibility="Hidden" Name="SerializationPathBox" HorizontalAlignment="Center" BorderThickness="0" Margin="0,551,0,0" Text="" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Width="890" Height="40"/>
+            
+        </Grid>
+    </Viewbox>
+</Window>
