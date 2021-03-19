@@ -10,6 +10,10 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using XMLFileReader;
+using Tabele_2019_3_UTF.Folder_z_Nazwą.Okna;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Tabele_2019_3_UTF
 {
@@ -45,7 +49,7 @@ namespace Tabele_2019_3_UTF
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                filePathBox.Text = dlg.FileName;
+                filePathBox.Content = dlg.FileName;
                 CheckIfFileExist(dlg.FileName);
             }
 
@@ -61,15 +65,15 @@ namespace Tabele_2019_3_UTF
             if (XMLFiles.Length == 0)
             {
                 MessageBox.Show("Brak plików XML w tym folderze");
-                Napis1.Visibility = Visibility.Hidden;
-                Przycisk1.Visibility = Visibility.Hidden;
-                SerializationPathBox.Visibility = Visibility.Hidden;
+                MiejsceZapisuNampis.Visibility = Visibility.Hidden;
+                PrzyciskMiejscaZapisu.Visibility = Visibility.Hidden;
+                SciezkaZapisu.Visibility = Visibility.Hidden;
             }
             else
             {
-                Napis1.Visibility = Visibility.Visible;
-                Przycisk1.Visibility = Visibility.Visible;
-                SerializationPathBox.Visibility = Visibility.Visible;
+                MiejsceZapisuNampis.Visibility = Visibility.Visible;
+                PrzyciskMiejscaZapisu.Visibility = Visibility.Visible;
+                SciezkaZapisu.Visibility = Visibility.Visible;
             }
         }
 
@@ -92,17 +96,18 @@ namespace Tabele_2019_3_UTF
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                SerializationPathBox.Text = dlg.FileName;
+                SciezkaZapisu.Content = dlg.FileName;
                 CheckIfFolderEmpty(dlg.FileName);
             }
 
         }
 
-        public void CheckIfFolderEmpty(string FileName)         // sprawdzenie czy folder jest pusty jak tak to pokauje błąd
+        public void CheckIfFolderEmpty(string FileName)         
         {
             DirectoryInfo di = new DirectoryInfo(FileName);
             var XMLFiles = di.GetFiles();
-            if (XMLFiles.Length == 0)
+            var Folders = di.GetDirectories();            
+            if (XMLFiles.Length == 0 && Folders.Length == 0)
             {
                 NextWindow.Visibility = Visibility.Visible;
                 XmlTarget = FileName;
@@ -113,103 +118,134 @@ namespace Tabele_2019_3_UTF
                 NextWindow.Visibility = Visibility.Hidden;
             }
         }
+
         private void Button_NextWindow(object sender, RoutedEventArgs e)
         {
+            OptionsWindow optionsWindow = new OptionsWindow();
+            optionsWindow.Show();
+            this.Hide();
+
             SerializacjaTabeli serializacjaTabeli = new SerializacjaTabeli(XmlFiles);
-            SerializacjaWidokow serializacjaWidokow = new SerializacjaWidokow(XmlFiles);
-            SerializacjaProcedurFunkcji serializacjaProcedurFunkcji = new SerializacjaProcedurFunkcji(XmlFiles);
-
-
             foreach (var list in serializacjaTabeli.ErrorLog)
+            {
+                MessageBox.Show(list, "Błąd w pliku");                                       // Komunikat o ewentualnym błędzie w pliku //
+            }
+            Thread t1 = new Thread(() => SaveToJSONTabele(serializacjaTabeli.xmlZawarotsc, XmlTarget));
+            t1.Start();
+
+            SerializacjaWidokow serializacjaWidokow = new SerializacjaWidokow(XmlFiles);
+            foreach (var list in serializacjaWidokow.ErrorLog)
             {
                 MessageBox.Show(list, "Błąd w pliku");
             }
-            foreach (var list in serializacjaWidokow.ErrorLog)
-            {
-                MessageBox.Show(list, "Błąd w pliku");          // Komunikat o ewentualnym błędzie w pliku //
-            }
+            Thread t2 = new Thread(() => SaveToJSONWidoki(serializacjaWidokow.xmlZawarotscViewdef, XmlTarget));
+            t2.Start();
+
+            SerializacjaProcedurFunkcji serializacjaProcedurFunkcji = new SerializacjaProcedurFunkcji(XmlFiles);
             foreach (var list in serializacjaProcedurFunkcji.ErrorLog)
             {
                 MessageBox.Show(list, "Błąd w pliku");
             }
-            SaveToJSON(serializacjaTabeli.xmlZawarotsc, serializacjaWidokow.xmlZawarotscViewdef, serializacjaWidokow.xmlZawarotscScriptdef, serializacjaProcedurFunkcji.xmlZawarotscProcedurFunkcji, XmlTarget);
-            MessageBox.Show("Done");
+            Thread t3 = new Thread(() => SaveToJSONScriptdef(serializacjaWidokow.xmlZawarotscScriptdef, XmlTarget));
+            t3.Start();
+            Thread t4 = new Thread(() => SaveToJSONProcedurFunkcji(serializacjaProcedurFunkcji.xmlZawarotscProcedurFunkcji, XmlTarget));
+            t4.Start();
 
+            while (true)
+            {
+                if (t1.IsAlive == false && t2.IsAlive == false && t3.IsAlive == false && t4.IsAlive == false)
+                {
+                    optionsWindow.IsDone = true;
+                    optionsWindow.lad.Content = "Zrobione";
+                    break;
+                }
+            }       
         }
-        void SaveToJSON(List<Tabele_2019_3_UTF.a.Klasy.Table> Tabele, List<SerializacjaViews.Viewdef> Widoki, List<SerializacjaViews.Scriptdef> Scriptdef, List<SerializacjaProcedurIFunkcji.ProceduryIFunkcji> ProceduryIFunkcje, string FolderName)
-        {
-            int i = 0;
-            string filePath = FolderName + @"\Tabele";
-            // If directory does not exist, create it
-            if (!Directory.Exists(filePath))
-            {
-                Directory.CreateDirectory(filePath);
-            }
-            foreach (var Tab in Tabele)
-            {
-                filePath = FolderName + @$"\Tabele\Tabela{i}.json";
-                JsonSerializer jsonSerializer = new JsonSerializer();
-                if (File.Exists(filePath)) File.Delete(filePath);
-                File.WriteAllText(filePath, JsonConvert.SerializeObject(Tab, Formatting.Indented));
 
-                i++;
-            }
-            i = 0;
-            filePath = FolderName + @"\Widoki";
-            // If directory does not exist, create it
-            if (!Directory.Exists(filePath))
-            {
-                Directory.CreateDirectory(filePath);
-            }
-            foreach (var Wid in Widoki)
-            {
-                filePath = FolderName + @$"\Widoki\Widok{i}.json";
-                JsonSerializer jsonSerializer = new JsonSerializer();
-                if (File.Exists(filePath)) File.Delete(filePath);
-                File.WriteAllText(filePath, JsonConvert.SerializeObject(Wid, Formatting.Indented));
+                private void SaveToJSONProcedurFunkcji(List<SerializacjaProcedurIFunkcji.ProceduryIFunkcji> ProceduryIFunkcje, string FolderName)
+                {
+                    int i = 0;
+                    string filePath = FolderName + @"\ProceduryIFunkcje";
+                    // If directory does not exist, create it
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
 
-                i++;
-            }
-            i = 0;
-            filePath = FolderName + @"\Scriptdefy";
-            // If directory does not exist, create it
-            if (!Directory.Exists(filePath))
-            {
-                Directory.CreateDirectory(filePath);
-            }
-            foreach (var Scrd in Scriptdef)
-            {
-                filePath = FolderName + @$"\Scriptdefy\Scripdef{i}.json";
-                JsonSerializer jsonSerializer = new JsonSerializer();
-                if (File.Exists(filePath)) File.Delete(filePath);
-                File.WriteAllText(filePath, JsonConvert.SerializeObject(Scrd, Formatting.Indented));
+                    foreach (var ProFunk in ProceduryIFunkcje)
+                    {
+                        filePath = FolderName + @$"\ProceduryIFunkcje\ProceduraIFunkcja{i}.json";
+                        JsonSerializer jsonSerializer = new JsonSerializer();
+                        if (File.Exists(filePath)) File.Delete(filePath);
+                        File.WriteAllText(filePath, JsonConvert.SerializeObject(ProFunk, Formatting.Indented));
+                        i++;
+                    }
+                }
 
-                i++;
-            }
-            i = 0;
-            filePath = FolderName + @"\ProceduryIFunkcje";
-            // If directory does not exist, create it
-            if (!Directory.Exists(filePath))
-            {
-                Directory.CreateDirectory(filePath);
-            }
-            foreach (var ProFunk in ProceduryIFunkcje)
-            {
-                filePath = FolderName + @$"\ProceduryIFunkcje\ProceduraIFunkcja{i}.json";
-                JsonSerializer jsonSerializer = new JsonSerializer();
-                if (File.Exists(filePath)) File.Delete(filePath);
-                File.WriteAllText(filePath, JsonConvert.SerializeObject(ProFunk, Formatting.Indented));
+                private void SaveToJSONScriptdef(List<SerializacjaViews.Scriptdef> Scriptdef, string FolderName)
+                {
+                    int i = 0;
+                    string filePath = FolderName + @"\Scriptdefy";
+                    // If directory does not exist, create it
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
 
-                //StreamWriter sw = new StreamWriter(filePath);
-                //JsonConvert.SerializeObject(ProFunk, Formatting.Indented);
-                ////JsonWriter jsonWriter = new JsonTextWriter(sw);
+            
+                        foreach (var Scrd in Scriptdef)
+                        {
+                            filePath = FolderName + @$"\Scriptdefy\Scripdef{i}.json";
+                        JsonSerializer jsonSerializer = new JsonSerializer();
+                        if (File.Exists(filePath)) File.Delete(filePath);
+                        File.WriteAllText(filePath, JsonConvert.SerializeObject(Scrd, Formatting.Indented));
 
-                //jsonSerializer.Serialize(jsonWriter, ProFunk);
+                        i++;
+                    }
+                }
 
-                //jsonWriter.Close();
-                //sw.Close();
-                i++;
-            }
-        }
+                private void SaveToJSONWidoki(List<SerializacjaViews.Viewdef> Widoki, string FolderName)
+                {
+                    int i = 0;
+                    string filePath = FolderName + @"\Widoki";
+                    // If directory does not exist, create it
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+
+
+                    foreach (var Wid in Widoki)
+                    {
+                        filePath = FolderName + @$"\Widoki\Widok{i}.json";
+                        JsonSerializer jsonSerializer = new JsonSerializer();
+                        if (File.Exists(filePath)) File.Delete(filePath);
+                        File.WriteAllText(filePath, JsonConvert.SerializeObject(Wid, Formatting.Indented));
+
+                        i++;
+                    }
+                }
+
+                public static void SaveToJSONTabele(List<Tabele_2019_3_UTF.a.Klasy.Table> Tabele, string FolderName)
+                {
+                    int i = 0;
+                    string filePath = FolderName + @"\Tabele";
+                    // If directory does not exist, create it
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+
+                    foreach (var Tab in Tabele)
+                    {
+                        filePath = FolderName + @$"\Tabele\Tabela{i}.json";
+                        JsonSerializer jsonSerializer = new JsonSerializer();
+                        if (File.Exists(filePath)) File.Delete(filePath);
+                        File.WriteAllText(filePath, JsonConvert.SerializeObject(Tab, Formatting.Indented));
+
+                        i++;
+                    }
+            
+                }
     }
 }

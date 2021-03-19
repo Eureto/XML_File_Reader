@@ -5,27 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tabele_2019_3_UTF" xmlns:fa="http://schemas.fontawesome.io/icons/"
         mc:Ignorable="d"
-        Title="MainWindow" Height="900" Width="900"
-        WindowStartupLocation="CenterScreen">
-       
-    
-    <Viewbox>
-        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Height="885" Width="900">
+        Title="MainWindow" Height="700" Width="700"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResizeWithGrip"
+        Background="Azure">
 
-            <Label Content="Podaj ścieżkę dostępu:" HorizontalContentAlignment="Center" FontSize="20" HorizontalAlignment="Center" Margin="0,312,0,0" VerticalAlignment="Top" Height="40" Width="800"/>
 
-            <Button  Name="FilePathButton" Content="Kliknij Tutaj" HorizontalAlignment="Center" Margin="0,352,0,0" VerticalAlignment="Top" Height="42" Width="116" Click="FilePathButton_Click"/>
+    <Grid Name="MainGrid"  Visibility="Visible" HorizontalAlignment="Center" VerticalAlignment="Center" Height="700" Width="700">
 
-            <TextBox BorderThickness="0" Name="filePathBox" HorizontalAlignment="Center" Margin="0,394,0,0" Text="" TextAlignment="Center" VerticalContentAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Width="800" Height="56"/>
+        <Label Content="Podaj ścieżkę dostępu:" HorizontalContentAlignment="Center" FontSize="20" HorizontalAlignment="Center" Margin="0,218,0,0" VerticalAlignment="Top" Height="48" Width="800" Grid.Row="1"/>
 
-            <Button x:Name="NextWindow"  Content="Dalej" Margin="734,781,50,62" Click="Button_NextWindow" Visibility="Visible"/>
+        <Button  Name="FilePathButton" Content="Kliknij Tutaj" HorizontalAlignment="Center" Margin="0,266,0,0" VerticalAlignment="Top" Height="42" Width="116" Click="FilePathButton_Click" Grid.Row="1"/>
 
-            <Label Visibility="Hidden" Name="Napis1" Content="Podaj miejsce zapisania plików:" HorizontalContentAlignment="Center" FontSize="20" HorizontalAlignment="Center" Margin="0,461,0,0" VerticalAlignment="Top" Width="308"/>
+        <Label BorderThickness="0" Name="filePathBox" HorizontalAlignment="Center" Margin="0,308,0,0" Content="" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  VerticalAlignment="Top" Width="700" Height="47"/>
 
-            <Button Visibility="Hidden" Name="Przycisk1" Content="Kliknij tutaj" HorizontalAlignment="Center" Margin="0,498,0,0" VerticalAlignment="Top" Height="43" Width="116" Click="Button_Click"/>
+        <Label Visibility="Hidden" Name="MiejsceZapisuNampis" Content="Podaj miejsce zapisania plików:" HorizontalContentAlignment="Center" FontSize="20" HorizontalAlignment="Center" Margin="0,375,0,0" VerticalAlignment="Top" Width="308" Grid.Row="1" Height="37"/>
 
-            <TextBox Visibility="Hidden" Name="SerializationPathBox" HorizontalAlignment="Center" BorderThickness="0" Margin="0,551,0,0" Text="" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Width="890" Height="40"/>
-            
-        </Grid>
-    </Viewbox>
+        <Button Visibility="Hidden" Name="PrzyciskMiejscaZapisu" Content="Kliknij tutaj" HorizontalAlignment="Center" Margin="0,412,0,0" VerticalAlignment="Top" Height="43" Width="116" Click="Button_Click" Grid.Row="1"/>
+
+        <Label Visibility="Hidden"  Name="SciezkaZapisu" HorizontalAlignment="Center" BorderThickness="0" Margin="0,460,0,0" Content="" HorizontalContentAlignment="Center" VerticalAlignment="Top" Width="700" Height="40"/>
+
+        <Button Visibility="Hidden" x:Name="NextWindow"  Content="Dalej"  Click="Button_NextWindow"   Margin="490,600,54,45"/>
+
+    </Grid>
+
 </Window>
