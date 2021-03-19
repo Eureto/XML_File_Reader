@@ -9,7 +9,6 @@ using Tabele_2019_3_UTF.SerializacjaProcedurIFunkcji;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using XMLFileReader;
 using Tabele_2019_3_UTF.Folder_z_Nazwą.Okna;
 using System.Threading.Tasks;
 using System.Threading;
